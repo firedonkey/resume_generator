@@ -24,9 +24,84 @@ body {
 
 .container {
   width: 100%;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+textarea {
+  width: 100%;
+  min-height: 250px;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #0077b5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-right: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #005582;
+}
+
+.experience-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.experience-item h4 {
+  margin: 0 0 5px 0;
+  color: #0077b5;
+}
+
+.experience-item p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.experience-item button {
+  margin-top: 5px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+#experienceForm {
+  margin-bottom: 20px;
+}
+
+#experienceList {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 section {
@@ -44,32 +119,6 @@ h2 {
   margin: 0 0 12px 0;
   color: #333;
   font-size: 18px;
-}
-
-textarea {
-  width: 100%;
-  min-height: 120px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: vertical;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-button {
-  background: #4A90E2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
-}
-
-button:hover {
-  background: #357ABD;
 }
 
 button:disabled {
@@ -130,9 +179,18 @@ button:disabled {
 }
 
 .success-message {
-  color: #28a745;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
   font-size: 14px;
-  margin-top: 8px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
 }
 
 /* Notification styles */
@@ -199,7 +257,10 @@ button:disabled {
 
 /* Profile section styles */
 .profile-section {
-  margin-top: 16px;
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .profile-section h4 {
@@ -236,4 +297,12 @@ button:disabled {
   .job-actions, .resume-actions {
     flex-direction: column;
   }
+}
+
+/* Add styles for the resume section */
+#resume {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 } 

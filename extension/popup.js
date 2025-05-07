@@ -3,18 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - Initializing popup...');
     
     // Get DOM elements
-    const profileInput = document.getElementById('profileInput');
+    const profileText = document.getElementById('profileText');
     const parseProfileBtn = document.getElementById('parseProfile');
-    const parsedProfileSection = document.getElementById('parsedProfile');
-    const parsedContent = document.getElementById('parsedContent');
+    const resumeSection = document.getElementById('resume');
+    const resumeContent = document.getElementById('resumeContent');
+    const downloadResumeBtn = document.getElementById('downloadResume');
     const editProfileBtn = document.getElementById('editProfile');
 
-    console.log('DOM Elements:', {
-        profileInput: !!profileInput,
-        parseProfileBtn: !!parseProfileBtn,
-        parsedProfileSection: !!parsedProfileSection,
-        parsedContent: !!parsedContent,
-        editProfileBtn: !!editProfileBtn
+    // Load saved profile text when popup opens
+    chrome.storage.local.get(['lastProfileText'], function(result) {
+        if (result.lastProfileText) {
+            profileText.value = result.lastProfileText;
+        }
     });
 
     // Function to show error message
@@ -26,10 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => errorDiv.remove(), 5000);
     }
 
+    // Function to show success message
+    function showSuccess(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = message;
+        document.body.appendChild(successDiv);
+        setTimeout(() => successDiv.remove(), 3000);
+    }
+
     // Add click handler for parse button
     parseProfileBtn.addEventListener('click', async () => {
         console.log('Parse Profile button clicked');
-        const text = profileInput.value.trim();
+        const text = profileText.value.trim();
         
         if (!text) {
             showError('Please enter your profile information');
@@ -37,15 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // Save the current input
+            chrome.storage.local.set({ 'lastProfileText': text });
+
             // Disable button and show loading state
             parseProfileBtn.disabled = true;
             parseProfileBtn.textContent = 'Parsing...';
             
             console.log('Sending request to parse profile...');
-            console.log('Request URL:', 'http://localhost:8001/api/profile/parse-profile');
-            console.log('Request body:', { profile_text: text });
-
-            // Call backend API to parse and enhance profile
             const response = await fetch('http://localhost:8001/api/profile/parse-profile', {
                 method: 'POST',
                 headers: {
@@ -58,9 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ profile_text: text })
             });
 
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Error response:', errorText);
@@ -70,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const parsedProfile = await response.json();
             console.log('Parsed profile:', parsedProfile);
             
-            // Display the enhanced profile
-            parsedContent.innerHTML = `
+            // Display the parsed profile
+            resumeContent.innerHTML = `
                 <div class="profile-section">
                     <h4>Name</h4>
                     <p>${parsedProfile.name}</p>
@@ -124,9 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
-            // Hide profile input, show parsed content
-            document.getElementById('profile').classList.add('hidden');
-            parsedProfileSection.classList.remove('hidden');
+            // Show resume content but keep profile input visible
+            resumeSection.classList.remove('hidden');
+            showSuccess('Profile parsed successfully! You can edit your input and parse again.');
         } catch (error) {
             console.error('Error parsing profile:', error);
             if (error.message === 'Failed to fetch') {
@@ -141,12 +146,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add click handler for edit button
-    editProfileBtn.addEventListener('click', () => {
-        console.log('Edit Profile button clicked');
-        // Show profile input, hide parsed content
-        parsedProfileSection.classList.add('hidden');
-        document.getElementById('profile').classList.remove('hidden');
+    // Add click handler for download button
+    downloadResumeBtn.addEventListener('click', () => {
+        const content = resumeContent.innerText;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'resume.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+        showSuccess('Resume downloaded successfully!');
+    });
+
+    // Add click handler for clear data button
+    document.getElementById('clearData').addEventListener('click', () => {
+        chrome.storage.local.clear(() => {
+            profileText.value = '';
+            resumeSection.classList.add('hidden');
+            showSuccess('All data cleared');
+        });
     });
 
     console.log('Popup initialization complete');
